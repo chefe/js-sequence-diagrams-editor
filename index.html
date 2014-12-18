@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>JS-Sequence-Diagramm</title>
+    <link href='http://fonts.googleapis.com/css?family=Love+Ya+Like+A+Sister' rel='stylesheet' type='text/css'>
+    <style type="text/css" media="screen">
+        body {
+            overflow:hidden;
+        }
+        #container { 
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: silver;
+        }
+        #menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 60px;
+            background-color: silver;
+            font-family: 'Love Ya Like A Sister', cursive;
+        }
+        #menu h1 {
+            padding: 3px;
+            margin: 0px;
+            font-weight: bold;
+            font-size: 280%;
+        }
+        #menu h1 a {
+            float: right;
+            border: 1px solid grey;
+            border-radius: 10px;
+            font-size: 75%;
+            background-color: grey;
+            padding: 4px;
+            font-weight: normal;
+            text-decoration: none;
+            color: black;
+            box-shadow: 0px 0px 10px grey;
+            text-shadow: silver 1px 1px;
+        }
+        #main {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            left: 0;
+            bottom: 40px;
+            background-color: white;
+        }
+        #statusbar {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: 40px;
+            background-color: silver;
+            font-family: 'Love Ya Like A Sister', cursive;
+        }
+        #statusbar p {
+            padding: 10px;
+            margin: 0px;
+            font-size: 120%;
+        }
+        #editor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+        }
+        #diagram {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="menu">
+            <h1>JS-Sequence-Diagramm
+            <a id="saveLink" href="#" download="diagram.svg">Save Image</a></h1>
+        </div>
+        <div id="main">
+            <div id="editor"></div>
+            <div id="diagram"></div>
+        </div>
+        <div id="statusbar"></div>
+    </div>
+    
+
+    <!-- JS libraries -->
+    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="raphael-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="sequence-diagram-min.js" type="text/javascript" charset="utf-8"></script>
+
+    <script>
+        var editor = ace.edit("editor");
+        editor.on('change', function() {
+            var statusmsg = '';
+            try {
+                document.getElementById('diagram').innerHTML = "";
+                var diagram = Diagram.parse(editor.getValue());
+                diagram.drawSVG("diagram", {theme: 'simple'});
+
+                var svg = document.getElementsByTagName('svg')[0];
+                var width = parseInt(svg.width.baseVal.value);
+                var height = parseInt(svg.height.baseVal.value);
+                var data = editor.getValue();
+                var xml = '<?xml version="1.0" encoding="utf-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"><svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" xmlns:xlink="http://www.w3.org/1999/xlink"><source><![CDATA[' + data + ']]></source>' + svg.innerHTML + '</svg>';
+
+                document.getElementById('saveLink').href = "data:image/svg+xml," + encodeURIComponent(xml);
+                statusmsg = '<p>Diagramm sucessfully generated</p>';
+            } catch(err) {
+                statusmsg = '<p>Error while parsing the input</p>';
+                console.log(err);
+            }
+            document.getElementById('statusbar').innerHTML = statusmsg;
+        });
+        editor.setTheme("ace/theme/monokai");
+        editor.getSession().setMode("ace/mode/asciidoc");
+        editor.setValue("A->B: test()\nB-->A: TestReply()", -1);
+    </script>
+</body>
+</html>
